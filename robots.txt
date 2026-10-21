@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://miladkasi.github.io/magic_prompts/sitemap.xml

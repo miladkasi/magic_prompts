@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+    <title>Magic prompts for Students</title>
+    <link href="https://miladkasi.github.io/magic_prompts/feed.xml" rel="self" />
+    <link href="https://miladkasi.github.io/magic_prompts" />
+    <updated>2026-10-21T14:29:39+03:30</updated>
+    <author>
+        <name>Milad Kasirlou</name>
+    </author>
+    <id>https://miladkasi.github.io/magic_prompts</id>
+
+    <entry>
+        <title>یاعلی گفتیم </title>
+        <author>
+            <name>Milad Kasirlou</name>
+        </author>
+        <link href="https://miladkasi.github.io/magic_prompts/yaaly-gftym.html"/>
+        <id>https://miladkasi.github.io/magic_prompts/yaaly-gftym.html</id>
+
+        <updated>2026-10-21T14:29:39+03:30</updated>
+            <summary type="html">
+                <![CDATA[
+                    و عشق آغاز شد
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                <p>و عشق آغاز شد</p>
+            ]]>
+        </content>
+    </entry>
+</feed>

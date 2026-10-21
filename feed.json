@@ -1,0 +1,27 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Magic prompts for Students",
+    "description": "",
+    "home_page_url": "https://miladkasi.github.io/magic_prompts",
+    "feed_url": "https://miladkasi.github.io/magic_prompts/feed.json",
+    "user_comment": "",
+    "author": {
+        "name": "Milad Kasirlou"
+    },
+    "items": [
+        {
+            "id": "https://miladkasi.github.io/magic_prompts/yaaly-gftym.html",
+            "url": "https://miladkasi.github.io/magic_prompts/yaaly-gftym.html",
+            "title": "یاعلی گفتیم ",
+            "summary": "و عشق آغاز شد",
+            "content_html": "<p>و عشق آغاز شد</p>",
+            "author": {
+                "name": "Milad Kasirlou"
+            },
+            "tags": [
+            ],
+            "date_published": "2026-10-21T14:29:39+03:30",
+            "date_modified": "2026-10-21T14:29:39+03:30"
+        }
+    ]
+}

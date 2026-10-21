@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمایشگاه شناختی زیست‌شناسی: قلب، ماهیچه و نفرون</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Cognitive Color Coding System */
+        .c-atria { color: #38bdf8; border-color: #38bdf8; background-color: rgba(56, 189, 248, 0.12); } /* Sky Blue: Atria / P wave */
+        .c-vent { color: #f43f5e; border-color: #f43f5e; background-color: rgba(244, 63, 94, 0.12); } /* Rose: Ventricles / QRS */
+        .c-rest { color: #10b981; border-color: #10b981; background-color: rgba(16, 185, 129, 0.12); } /* Emerald: Repolarization / Rest / T wave */
+        .c-atp { color: #f59e0b; border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.12); } /* Amber: Calcium & ATP / Filtration */
+        .c-sec { color: #a855f7; border-color: #a855f7; background-color: rgba(168, 85, 247, 0.12); } /* Purple: Secretion */
+
+        /* SVG & Interactive Animations */
+        .svg-transition {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pulseHeart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+        .heart-beat {
+            animation: pulseHeart 1.2s infinite ease-in-out;
+        }
+
+        @keyframes flowDots {
+            to { stroke-dashoffset: -24; }
+        }
+        .animate-flow {
+            stroke-dasharray: 6, 6;
+            animation: flowDots 1s linear infinite;
+        }
+
+        /* Flip Card 3D */
+        .perspective-1000 { perspective: 1000px; }
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flipped .flip-inner { transform: rotateY(180deg); }
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 1rem;
+        }
+        .flip-back { transform: rotateY(180deg); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen pb-16 selection:bg-rose-500 selection:text-white">
+
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/90 border-b border-slate-800 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 w-full lg:w-auto">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
+                    <i class="fa-solid fa-dna text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-extrabold bg-gradient-to-l from-white via-rose-200 to-emerald-300 bg-clip-text text-transparent">
+                        آزمایشگاه شناختی زیست‌شناسی کنکور (فیزیولوژی جانوری)
+                    </h1>
+                    <p class="text-xs text-slate-400">یادگیری بصری و بدون فراموشی: نوار قلب (ECG)، انقباض سارکومر و تشکیل ادرار در نفرون</p>
+                </div>
+            </div>
+
+            <!-- Main Module Switcher -->
+            <nav class="flex bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700 text-xs sm:text-sm overflow-x-auto w-full lg:w-auto gap-1.5">
+                <button onclick="switchTab('tab-ecg')" id="btn-tab-ecg" class="tab-btn px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-2 bg-rose-600 text-white shadow shrink-0">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>۱. نوار قلب (ECG) و چرخه قلبی</span>
+                </button>
+                <button onclick="switchTab('tab-muscle')" id="btn-tab-muscle" class="tab-btn px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-2 text-slate-300 hover:text-white shrink-0">
+                    <i class="fa-solid fa-dumbbell"></i>
+                    <span>۲. مکانیسم انقباض ماهیچه</span>
+                </button>
+                <button onclick="switchTab('tab-nephron')" id="btn-tab-nephron" class="tab-btn px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-2 text-slate-300 hover:text-white shrink-0">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>۳. نفرون و تشکیل ادرار</span>
+                </button>
+                <button onclick="switchTab('tab-recall')" id="btn-tab-recall" class="tab-btn px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-2 text-slate-300 hover:text-white shrink-0">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>۴. دام‌های کنکوری و بازیابی فعال</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+
+        <!-- =========================================================
+             MODULE 1: HEART & ECG (ELECTROCARDIOGRAM) + CARDIAC CYCLE
+        ========================================================== -->
+        <section id="tab-ecg" class="tab-content space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                
+                <!-- Cognitive Color Legend for Heart -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-5 mb-6 border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                            فصل ۴ زیست دهم: تطبیق هم‌زمان نوار قلب، دریچه‌ها و چرخه قلبی
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                            شبیه‌ساز هوشمند نوار قلب (ECG) و مراحل ۰.۸ ثانیه‌ای قلب
+                        </h2>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <span class="px-3 py-1.5 rounded-xl border c-atria font-bold">آبی = فعالیت دهلیزها (موج P)</span>
+                        <span class="px-3 py-1.5 rounded-xl border c-vent font-bold">قرمز = انقباض بطن‌ها (موج QRS)</span>
+                        <span class="px-3 py-1.5 rounded-xl border c-rest font-bold">سبز = استراحت و بازگشت (موج T)</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Wave Selector Buttons -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-6">
+                    <button onclick="setEcgState('P')" id="ecg-btn-P" class="ecg-btn p-3 rounded-2xl border-2 border-sky-400 bg-sky-950/40 text-right transition">
+                        <div class="text-xs text-sky-300 font-bold">مرحله ۱ (۰.۱ ثانیه)</div>
+                        <div class="text-sm sm:text-base font-extrabold text-white mt-0.5">موج P و انقباض دهلیز</div>
+                    </button>
+                    <button onclick="setEcgState('QRS')" id="ecg-btn-QRS" class="ecg-btn p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 text-right transition">
+                        <div class="text-xs text-rose-400 font-bold">مرحله ۲ (شروع ۰.۳ ثانیه)</div>
+                        <div class="text-sm sm:text-base font-extrabold text-white mt-0.5">موج QRS + صدای اول</div>
+                    </button>
+                    <button onclick="setEcgState('ST')" id="ecg-btn-ST" class="ecg-btn p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 text-right transition">
+                        <div class="text-xs text-amber-400 font-bold">مرحله ۳ (ادامه سیستول بطن)</div>
+                        <div class="text-sm sm:text-base font-extrabold text-white mt-0.5">قطعه ST (خروج خون)</div>
+                    </button>
+                    <button onclick="setEcgState('T')" id="ecg-btn-T" class="ecg-btn p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 text-right transition">
+                        <div class="text-xs text-emerald-400 font-bold">مرحله ۴ (پایان سیستول)</div>
+                        <div class="text-sm sm:text-base font-extrabold text-white mt-0.5">موج T + صدای دوم</div>
+                    </button>
+                    <button onclick="setEcgState('REST')" id="ecg-btn-REST" class="ecg-btn p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 text-right transition col-span-2 sm:col-span-1">
+                        <div class="text-xs text-purple-400 font-bold">مرحله ۵ (۰.۴ ثانیه)</div>
+                        <div class="text-sm sm:text-base font-extrabold text-white mt-0.5">استراحت عمومی</div>
+                    </button>
+                </div>
+
+                <!-- Dual Visual Canvas: SVG ECG Curve + SVG Heart Chambers & Valves -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-slate-950 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    
+                    <!-- Left: Interactive SVG ECG Trace -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="flex justify-between items-center text-xs text-slate-400 px-1">
+                            <span>نوار قلب (الکتروکاردیوگرام) - روی بخش‌های نمودار یا دکمه‌های بالا کلیک کنید:</span>
+                            <span id="ecg-time-badge" class="px-2.5 py-1 rounded-md bg-sky-500/20 text-sky-300 font-bold">مدت فاز: ۰.۱ ثانیه</span>
+                        </div>
+                        <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 relative overflow-hidden">
+                            <!-- Grid Background -->
+                            <svg viewBox="0 0 500 200" class="w-full h-auto select-none">
+                                <defs>
+                                    <pattern id="ecgGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="1"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="500" height="200" fill="url(#ecgGrid)" />
+
+                                <!-- Baseline -->
+                                <line x1="10" y1="130" x2="70" y2="130" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+
+                                <!-- P Wave (Atrial Depolarization) -->
+                                <path id="svg-wave-P" onclick="setEcgState('P')" class="cursor-pointer svg-transition"
+                                      d="M 70 130 Q 100 75 130 130 L 160 130"
+                                      fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round"/>
+                                <text x="100" y="65" fill="#38bdf8" font-size="18" font-weight="bold" text-anchor="middle">P</text>
+
+                                <!-- QRS Complex (Ventricular Depolarization) -->
+                                <path id="svg-wave-QRS" onclick="setEcgState('QRS')" class="cursor-pointer svg-transition"
+                                      d="M 160 130 L 175 150 L 195 25 L 215 170 L 230 130"
+                                      fill="none" stroke="#64748b" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+                                <text x="195" y="18" fill="#f43f5e" font-size="18" font-weight="bold" text-anchor="middle">R</text>
+                                <text x="170" y="170" fill="#f43f5e" font-size="15" font-weight="bold" text-anchor="middle">Q</text>
+                                <text x="222" y="188" fill="#f43f5e" font-size="15" font-weight="bold" text-anchor="middle">S</text>
+
+                                <!-- ST Segment (Ventricular Ejection) -->
+                                <line id="svg-wave-ST" onclick="setEcgState('ST')" class="cursor-pointer svg-transition"
+                                      x1="230" y1="130" x2="285" y2="130" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+                                <text x="257" y="118" fill="#f59e0b" font-size="13" font-weight="bold" text-anchor="middle">ST</text>
+
+                                <!-- T Wave (Ventricular Repolarization) -->
+                                <path id="svg-wave-T" onclick="setEcgState('T')" class="cursor-pointer svg-transition"
+                                      d="M 285 130 Q 325 60 365 130"
+                                      fill="none" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+                                <text x="325" y="55" fill="#10b981" font-size="18" font-weight="bold" text-anchor="middle">T</text>
+
+                                <!-- General Rest Line -->
+                                <line id="svg-wave-REST" onclick="setEcgState('REST')" class="cursor-pointer svg-transition"
+                                      x1="365" y1="130" x2="480" y2="130" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+                                <text x="422" y="115" fill="#a855f7" font-size="13" font-weight="bold" text-anchor="middle">استراحت عمومی (۰.۴s)</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Right: Schematic Heart Chambers, Nodes & Valves -->
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        <div class="text-xs text-slate-400 mb-2">وضعیت حفرات، شبکه هادی و دریچه‌های قلب:</div>
+                        <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 w-full flex flex-col items-center">
+                            <svg viewBox="0 0 260 220" class="w-56 h-48 select-none">
+                                <!-- Atria (Top Chambers) -->
+                                <path id="heart-atria" class="svg-transition" d="M 50 85 C 50 35, 125 35, 125 85 Z M 135 85 C 135 35, 210 35, 210 85 Z"
+                                      fill="rgba(56, 189, 248, 0.35)" stroke="#38bdf8" stroke-width="3"/>
+                                <text x="88" y="68" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">دهلیز راست</text>
+                                <text x="172" y="68" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">دهلیز چپ</text>
+
+                                <!-- Ventricles (Bottom Chambers) -->
+                                <path id="heart-ventricles" class="svg-transition" d="M 55 95 L 125 95 L 125 195 C 85 185, 55 145, 55 95 Z M 135 95 L 205 95 C 205 145, 175 185, 135 195 Z"
+                                      fill="rgba(30, 41, 59, 0.7)" stroke="#475569" stroke-width="3"/>
+                                <text x="92" y="140" fill="#cbd5e1" font-size="11" font-weight="bold" text-anchor="middle">بطن راست</text>
+                                <text x="168" y="140" fill="#cbd5e1" font-size="11" font-weight="bold" text-anchor="middle">بطن چپ</text>
+
+                                <!-- SA & AV Nodes -->
+                                <circle id="node-sa" cx="70" cy="52" r="6" fill="#fbbf24" class="svg-transition"/>
+                                <text x="70" y="38" fill="#fbbf24" font-size="9" font-weight="bold" text-anchor="middle">گره SA</text>
+
+                                <circle id="node-av" cx="120" cy="82" r="5" fill="#64748b" class="svg-transition"/>
+                                <text x="103" y="84" fill="#fbbf24" font-size="8" text-anchor="middle">AV</text>
+
+                                <!-- Purkinje Fibers -->
+                                <path id="node-purkinje" d="M 130 85 L 130 175 M 130 160 L 70 125 M 130 160 L 190 125" stroke="#475569" stroke-width="2.5" fill="none" class="svg-transition"/>
+                            </svg>
+
+                            <!-- Live Valve Status Indicators -->
+                            <div class="grid grid-cols-2 gap-2 w-full mt-2 text-xs text-center">
+                                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                                    <span class="text-slate-400 block mb-0.5">دریچه‌های دولختی/سه‌لختی:</span>
+                                    <strong id="valve-av-status" class="text-emerald-400 text-sm">باز (عبور خون)</strong>
+                                </div>
+                                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                                    <span class="text-slate-400 block mb-0.5">دریچه‌های سینی (آئورت/ششی):</span>
+                                    <strong id="valve-sl-status" class="text-rose-400 text-sm">بسته</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Detailed Cognitive Breakdown Box for Current ECG State -->
+                <div id="ecg-detail-box" class="mt-6 p-5 rounded-2xl bg-slate-800/80 border-r-4 border-sky-400 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                    <div>
+                        <h4 class="font-bold text-sky-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt"></i> رویداد الکتریکی و مکانیکی:
+                        </h4>
+                        <p id="ecg-desc-elec" class="text-slate-200 leading-relaxed">
+                            پیام الکتریکی از <strong>گره سینوسی-دهلیزی (SA)</strong> آغاز شده و در دهلیزها پخش می‌شود (ایجاد <strong>موج P</strong>). بلافاصله دهلیزها منقبض می‌شوند (۰.۱ ثانیه) تا ۲۰٪ باقی‌مانده خون را وارد بطن‌ها کنند.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-amber-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-door-open"></i> وضعیت دریچه‌ها و صداهای قلب:
+                        </h4>
+                        <p id="ecg-desc-valve" class="text-slate-200 leading-relaxed">
+                            دریچه‌های دهلیزی-بطنی (دولختی و سه‌لختی) <strong>باز</strong> هستند. دریچه‌های سینی <strong>بسته</strong> هستند. هیچ صدای قلبی در این لحظه شنیده نمی‌شود.
+                        </p>
+                    </div>
+                    <div class="bg-slate-950/90 p-3.5 rounded-xl border border-amber-500/30">
+                        <h4 class="font-bold text-rose-400 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> نکته طلایی کنکور:
+                        </h4>
+                        <p id="ecg-desc-konkur" class="text-slate-300 leading-relaxed">
+                            ثبت موج الکتریکی همیشه <strong>کمی قبل از شروع انقباض</strong> است! یعنی موج P کمی قبل از انقباض دهلیزها ثبت می‌شود و در حین انقباض دهلیزها، بطن‌ها هنوز در حال استراحت‌اند.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================================================
+             MODULE 2: SKELETAL MUSCLE CONTRACTION (SLIDING FILAMENT)
+        ========================================================== -->
+        <section id="tab-muscle" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-6 border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            فصل ۳ زیست یازدهم: مدل لغزش رشته‌ها (سارکومر)
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                            شبیه‌ساز انقباض ماهیچه و چرخه پل‌های اتصالی (اکتین و میوزین)
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                        <span class="text-xs sm:text-sm font-bold text-amber-400">اسلایدر انقباض سارکومر:</span>
+                        <input type="range" id="sarcomere-slider" min="0" max="100" value="0" oninput="updateSarcomere(this.value)" class="w-36 sm:w-48 accent-amber-500 cursor-pointer">
+                        <span id="sarcomere-percent" class="text-xs font-black px-2 py-1 rounded bg-amber-500 text-slate-950">0%</span>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Sarcomere Visualizer -->
+                <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-wrap justify-between items-center text-xs text-slate-400 gap-2">
+                        <span>با حرکت دادن اسلایدر بالا (یا کلیک روی مراحل پایین)، تغییر طول نوارهای <strong>I، H و A</strong> را به چشم ببینید:</span>
+                        <div class="flex gap-3">
+                            <span class="text-sky-400 font-bold">━ رشته نازک (اکتین)</span>
+                            <span class="text-rose-400 font-bold">━━ رشته ضخیم (میوزین)</span>
+                            <span class="text-emerald-400 font-bold">┃ خط Z</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 overflow-x-auto">
+                        <svg viewBox="0 0 600 190" class="w-full min-w-[500px] h-auto select-none">
+                            <!-- Band Highlight Zones -->
+                            <!-- A Band (Constant width in center: x=170 to 430, width=260) -->
+                            <rect x="170" y="15" width="260" height="145" fill="rgba(244, 63, 94, 0.08)" stroke="#f43f5e" stroke-dasharray="4,4"/>
+                            <text x="300" y="32" fill="#fb7185" font-size="13" font-weight="bold" text-anchor="middle">نوار تیره (A) = همیشه ثابت!</text>
+
+                            <!-- H Zone (Dynamic width in center between actin tips) -->
+                            <rect id="svg-h-zone" x="250" y="42" width="100" height="105" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b"/>
+                            <text id="svg-h-text" x="300" y="58" fill="#fbbf24" font-size="12" font-weight="bold" text-anchor="middle">صفحه هنسن (H)</text>
+
+                            <!-- Left Moving Group (Left Z-line + Left Actin Filaments) -->
+                            <g id="svg-left-actin" transform="translate(0, 0)" class="svg-transition">
+                                <!-- Left Z Line -->
+                                <line x1="60" y1="35" x2="60" y2="155" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+                                <text x="60" y="25" fill="#10b981" font-size="13" font-weight="bold" text-anchor="middle">خط Z</text>
+                                <!-- Actin filaments attached to Left Z -->
+                                <line x1="60" y1="65" x2="250" y2="65" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="60" y1="125" x2="250" y2="125" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+                            </g>
+
+                            <!-- Right Moving Group (Right Z-line + Right Actin Filaments) -->
+                            <g id="svg-right-actin" transform="translate(0, 0)" class="svg-transition">
+                                <!-- Right Z Line -->
+                                <line x1="540" y1="35" x2="540" y2="155" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+                                <text x="540" y="25" fill="#10b981" font-size="13" font-weight="bold" text-anchor="middle">خط Z</text>
+                                <!-- Actin filaments attached to Right Z -->
+                                <line x1="350" y1="65" x2="540" y2="65" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="350" y1="125" x2="540" y2="125" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+                            </g>
+
+                            <!-- Stationary Center Myosin (Thick Filament + M Line) -->
+                            <line x1="300" y1="45" x2="300" y2="145" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3"/>
+                            <line x1="170" y1="95" x2="430" y2="95" stroke="#f43f5e" stroke-width="10" stroke-linecap="round"/>
+                            <!-- Myosin Heads -->
+                            <path d="M 190 90 L 180 72 M 220 90 L 210 72 M 245 90 L 235 72 M 410 90 L 420 72 M 380 90 L 390 72 M 355 90 L 365 72" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M 190 100 L 180 118 M 220 100 L 210 118 M 245 100 L 235 118 M 410 100 L 420 118 M 380 100 L 390 118 M 355 100 L 365 118" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <!-- Cognitive Mnemonic Table for Sarcomere Changes -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-center pt-2">
+                        <div class="p-3 rounded-xl bg-slate-900 border border-emerald-500/30">
+                            <div class="text-slate-400">فاصله دو خط Z (طول سارکومر)</div>
+                            <div class="text-emerald-400 font-extrabold text-sm mt-1">کاهش می‌یابد ⬇</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900 border border-amber-500/30">
+                            <div class="text-slate-400">طول نوار روشن (I) و هنسن (H)</div>
+                            <div class="text-amber-400 font-extrabold text-sm mt-1">کاهش می‌یابد ⬇</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900 border border-rose-500/40">
+                            <div class="text-slate-400">طول نوار تیره (A)</div>
+                            <div class="text-rose-400 font-extrabold text-sm mt-1">کاملاً ثابت می‌ماند! 🟰</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900 border border-sky-500/40">
+                            <div class="text-slate-400">طول خودِ رشته‌های اکتین و میوزین</div>
+                            <div class="text-sky-400 font-extrabold text-sm mt-1">تغییر نمی‌کند! (فقط می‌لغزند)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4-Step Molecular Cycle of Cross-Bridge (ATP & Ca2+ Role) -->
+                <div class="mt-6">
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-spin text-amber-400"></i>
+                        ۴ مرحله مولکولی انقباض (نقش دقیق یون کلسیم و ATP در کنکور):
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        <div onclick="updateSarcomere(15)" class="cursor-pointer bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-amber-400 transition">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">مرحله ۱: آزاد شدن کلسیم</span>
+                            <h4 class="font-bold text-white text-sm mt-2">باز شدن جایگاه اتصال اکتین</h4>
+                            <p class="text-slate-300 mt-1 leading-relaxed">
+                                با رسیدن پیام عصبی، یون‌های <strong>کلسیم ($Ca^{2+}$)</strong> از شبکه سارکوپلاسمی آزاد شده و با تغییر پروتئین‌های تنظیمی، جایگاه اتصال روی <strong>اکتین</strong> را برهنه و آماده می‌کنند.
+                            </p>
+                        </div>
+                        <div onclick="updateSarcomere(45)" class="cursor-pointer bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-sky-400 transition">
+                            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold">مرحله ۲: آبکافت ATP</span>
+                            <h4 class="font-bold text-white text-sm mt-2">تغییر زاویه سر میوزین و اتصال</h4>
+                            <p class="text-slate-300 mt-1 leading-relaxed">
+                                سر میوزین $ATP$ را به $ADP + P$ تجزیه می‌کند؛ انرژی حاصل باعث <strong>قرار گرفتن سر میوزین در وضعیت پرانرژی</strong> و اتصال آن به اکتین (تشکیل پل اتصالی) می‌شود.
+                            </p>
+                        </div>
+                        <div onclick="updateSarcomere(95)" class="cursor-pointer bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-emerald-400 transition">
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">مرحله ۳: ضربه قدرتی</span>
+                            <h4 class="font-bold text-white text-sm mt-2">آزاد شدن ADP و لغزش اکتین</h4>
+                            <p class="text-slate-300 mt-1 leading-relaxed">
+                                با جدا شدن $ADP$ و فسفات، سر میوزین خم شده و رشته <strong>اکتین را به سمت وسط سارکومر می‌کشد</strong> (کوتاه شدن نوارهای H و I).
+                            </p>
+                        </div>
+                        <div onclick="updateSarcomere(0)" class="cursor-pointer bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-rose-400 transition">
+                            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">مرحله ۴: اتصال ATP جدید</span>
+                            <h4 class="font-bold text-white text-sm mt-2">جدا شدن سر میوزین از اکتین!</h4>
+                            <p class="text-slate-300 mt-1 leading-relaxed">
+                                ⚠️ <strong>دام بزرگ کنکور:</strong> برای <strong>جدا شدن</strong> سر میوزین از اکتین، اتصال یک مولکول $ATP$ جدید ضروری است! (به همین دلیل پس از مرگ به علت نبود $ATP$، جمود نعشی رخ می‌دهد).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================================================
+             MODULE 3: NEPHRON & URINE FORMATION (COLOR-CODED)
+        ========================================================== -->
+        <section id="tab-nephron" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                
+                <!-- Header & 3-Process Color Filter -->
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-5 mb-6 border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            فصل ۵ زیست دهم: کدگذاری رنگی ۳ مرحله تشکیل ادرار
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                            نقشه تعاملی نفرون: تراوش، بازجذب و ترشح
+                        </h2>
+                    </div>
+
+                    <!-- Process Filter Buttons -->
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <button onclick="setNephronProcess('all')" id="nep-btn-all" class="nep-btn px-3.5 py-2 rounded-xl font-bold bg-slate-700 text-white border border-slate-500">
+                            نمایش هر ۳ فرآیند
+                        </button>
+                        <button onclick="setNephronProcess('filtration')" id="nep-btn-filtration" class="nep-btn px-3.5 py-2 rounded-xl font-bold border c-atp hover:scale-105 transition">
+                            🟡 ۱. تراوش (کپسول بومن)
+                        </button>
+                        <button onclick="setNephronProcess('reabsorption')" id="nep-btn-reabsorption" class="nep-btn px-3.5 py-2 rounded-xl font-bold border c-rest hover:scale-105 transition">
+                            🟢 ۲. بازجذب (نفرون ⬅ خون)
+                        </button>
+                        <button onclick="setNephronProcess('secretion')" id="nep-btn-secretion" class="nep-btn px-3.5 py-2 rounded-xl font-bold border c-sec hover:scale-105 transition">
+                            🟣 ۳. ترشح (خون ⬅ نفرون)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Nephron Regions + SVG Map -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-slate-950 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    
+                    <!-- Left: Interactive SVG Nephron Diagram -->
+                    <div class="lg:col-span-7">
+                        <div class="text-xs text-slate-400 mb-2">روی هر بخش از نفرون در شکل زیر کلیک کنید تا جزئیات کنکوری آن نمایش داده شود:</div>
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-3">
+                            <svg viewBox="0 0 540 270" class="w-full h-auto select-none">
+                                <!-- Glomerulus (Afferent & Efferent Arterioles) -->
+                                <path d="M 20 65 L 65 65 C 85 50, 85 100, 65 85 L 20 95" fill="none" stroke="#f43f5e" stroke-width="6" stroke-linecap="round"/>
+                                <circle cx="75" cy="75" r="16" fill="rgba(244, 63, 94, 0.4)" stroke="#f43f5e" stroke-width="3"/>
+                                <text x="42" y="52" fill="#fb7185" font-size="10" font-weight="bold">سرخرگ آوران (قطورتر)</text>
+
+                                <!-- 1. Bowman's Capsule -->
+                                <path id="nep-seg-bowman" onclick="selectNephronSegment('bowman')" class="cursor-pointer svg-transition hover:opacity-80"
+                                      d="M 85 45 C 125 45, 125 105, 85 105 C 102 90, 102 60, 85 45 Z"
+                                      fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" stroke-width="4"/>
+                                <text x="100" y="35" fill="#fbbf24" font-size="12" font-weight="bold" text-anchor="middle">۱. کپسول بومن</text>
+
+                                <!-- 2. Proximal Convoluted Tubule (PCT) -->
+                                <path id="nep-seg-pct" onclick="selectNephronSegment('pct')" class="cursor-pointer svg-transition hover:opacity-80"
+                                      d="M 115 75 Q 145 40 175 75 T 235 75"
+                                      fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round"/>
+                                <text x="180" y="42" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">۲. لوله پیچ‌خورده نزدیک</text>
+
+                                <!-- 3. Loop of Henle -->
+                                <path id="nep-seg-henle" onclick="selectNephronSegment('henle')" class="cursor-pointer svg-transition hover:opacity-80"
+                                      d="M 235 75 L 235 210 C 235 245, 295 245, 295 210 L 295 75"
+                                      fill="none" stroke="#38bdf8" stroke-width="9" stroke-linecap="round"/>
+                                <text x="265" y="255" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">۳. قوس هنله (پایین‌رو و بالارو)</text>
+
+                                <!-- 4. Distal Convoluted Tubule (DCT) -->
+                                <path id="nep-seg-dct" onclick="selectNephronSegment('dct')" class="cursor-pointer svg-transition hover:opacity-80"
+                                      d="M 295 75 Q 330 40 365 75 T 425 75"
+                                      fill="none" stroke="#a855f7" stroke-width="11" stroke-linecap="round"/>
+                                <text x="360" y="42" fill="#c084fc" font-size="12" font-weight="bold" text-anchor="middle">۴. لوله پیچ‌خورده دور</text>
+
+                                <!-- 5. Collecting Duct -->
+                                <path id="nep-seg-cd" onclick="selectNephronSegment('cd')" class="cursor-pointer svg-transition hover:opacity-80"
+                                      d="M 425 75 L 470 75 L 470 240"
+                                      fill="none" stroke="#eab308" stroke-width="14" stroke-linecap="round"/>
+                                <text x="470" y="38" fill="#fde047" font-size="12" font-weight="bold" text-anchor="middle">۵. مجرای جمع‌کننده</text>
+
+                                <!-- Animated Process Arrows -->
+                                <!-- Filtration Arrow (Amber) -->
+                                <g id="arrow-filtration" class="svg-transition">
+                                    <path d="M 78 75 L 112 75" stroke="#fbbf24" stroke-width="3" marker-end="url(#head)"/>
+                                    <circle cx="95" cy="75" r="5" fill="#fbbf24"/>
+                                    <text x="95" y="122" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle">تراوش (فشار خون)</text>
+                                </g>
+
+                                <!-- Reabsorption Indicators (Emerald) -->
+                                <g id="arrow-reabsorption" class="svg-transition">
+                                    <path d="M 175 85 L 175 130" stroke="#10b981" stroke-width="3" stroke-dasharray="4,4"/>
+                                    <rect x="130" y="132" width="90" height="22" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981"/>
+                                    <text x="175" y="147" fill="#34d399" font-size="10" font-weight="bold" text-anchor="middle">بازجذب حداکثری</text>
+                                </g>
+
+                                <!-- Secretion Indicators (Purple) -->
+                                <g id="arrow-secretion" class="svg-transition">
+                                    <path d="M 365 130 L 365 85" stroke="#a855f7" stroke-width="3" stroke-dasharray="4,4"/>
+                                    <rect x="315" y="132" width="100" height="22" rx="6" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7"/>
+                                    <text x="365" y="147" fill="#c084fc" font-size="10" font-weight="bold" text-anchor="middle">ترشح فعال (+H، دارو)</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Right: Selected Segment Cognitive Dossier -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+                            <span id="nep-badge" class="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-300">بخش انتخاب شده: کپسول بومن و گلومرول</span>
+                            <h3 id="nep-title" class="text-lg font-extrabold text-white">۱. کپسول بومن (محل انحصاری تراوش)</h3>
+                            <p id="nep-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                به دلیل <strong>قطورتر بودن سرخرگ آوران نسبت به سرخرگ وابران</strong>، فشار خون در کلافک (گلومرول) بسیار بالاست. این فشار باعث تراوش آب، یون‌ها، گلوکز، آمینواسیدها و اوره به درون کپسول بومن می‌شود.
+                            </p>
+                            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1.5">
+                                <div class="font-bold text-rose-400">⛔ چه چیزهایی تراوش نمی‌شوند؟</div>
+                                <p id="nep-extra" class="text-slate-300">
+                                    گلبول‌های قرمز، پلاکت‌ها و پروتئین‌های درشت پلاسما (مثل آلبومین). <strong>نکته: تراوش هیچ انرژی (ATP) مصرف نمی‌کند!</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Comparison of the 3 Processes -->
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="p-2.5 rounded-xl border c-atp">
+                                <div class="font-bold">۱. تراوش</div>
+                                <div class="text-[11px] text-slate-300 mt-1">فقط در کپسول بومن (بدون مصرف ATP)</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl border c-rest">
+                                <div class="font-bold">۲. بازجذب</div>
+                                <div class="text-[11px] text-slate-300 mt-1">گلوکز و آمینواسید (فعال) + آب (اسمز) و اوره (غیرفعال)</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl border c-sec">
+                                <div class="font-bold">۳. ترشح</div>
+                                <div class="text-[11px] text-slate-300 mt-1">همیشه فعال (با مصرف ATP) از مویرگ به نفرون</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             MODULE 4: ACTIVE RECALL (3D FLASHCARDS & KONKUR QUIZ)
+        ========================================================== -->
+        <section id="tab-recall" class="tab-content hidden space-y-8">
+            
+            <!-- 3D Flip Flashcards of High-Yield Konkur Traps -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            تثبیت در حافظه بلندمدت: دام‌های پرتکرار کنکور تجربی
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                            فلش‌کارت‌های سه‌بعدی (روی هر کارت کلیک کنید)
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <!-- Flashcard 1: Heart -->
+                    <div onclick="this.classList.toggle('flipped')" class="perspective-1000 h-52 cursor-pointer">
+                        <div class="flip-inner">
+                            <div class="flip-front bg-slate-950 border-2 border-rose-500/40 p-5 flex flex-col justify-between">
+                                <span class="text-xs text-rose-400 font-bold">دام کنکوری ۱: نوار قلب (ECG)</span>
+                                <p class="text-sm sm:text-base font-bold text-white text-center my-auto">
+                                    چرا در نوار قلب، موجِ مربوط به استراحت دهلیزها دیده نمی‌شود؟
+                                </p>
+                                <span class="text-[11px] text-slate-400 text-center">کلیک برای مشاهده پاسخ</span>
+                            </div>
+                            <div class="flip-back bg-emerald-950/90 border-2 border-emerald-400 p-5 flex flex-col justify-center text-center">
+                                <h4 class="font-bold text-emerald-300 text-sm mb-2">پاسخ دقیق:</h4>
+                                <p class="text-xs sm:text-sm text-white leading-relaxed">
+                                    زیرا بازگشت دهلیزها به حالت استراحت دقیقاً <strong>هم‌زمان با انقباض قدرتمند بطن‌ها (موج QRS)</strong> رخ می‌دهد و موج بزرگ QRS آن را می‌پوشاند!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard 2: Muscle -->
+                    <div onclick="this.classList.toggle('flipped')" class="perspective-1000 h-52 cursor-pointer">
+                        <div class="flip-inner">
+                            <div class="flip-front bg-slate-950 border-2 border-amber-500/40 p-5 flex flex-col justify-between">
+                                <span class="text-xs text-amber-400 font-bold">دام کنکوری ۲: انقباض ماهیچه</span>
+                                <p class="text-sm sm:text-base font-bold text-white text-center my-auto">
+                                    در هنگام انقباض ماهیچه اسکلتی، طول کدام بخش‌ها تغییر نمی‌کند؟
+                                </p>
+                                <span class="text-[11px] text-slate-400 text-center">کلیک برای مشاهده پاسخ</span>
+                            </div>
+                            <div class="flip-back bg-emerald-950/90 border-2 border-emerald-400 p-5 flex flex-col justify-center text-center">
+                                <h4 class="font-bold text-emerald-300 text-sm mb-2">پاسخ دقیق:</h4>
+                                <p class="text-xs sm:text-sm text-white leading-relaxed">
+                                    ۱. <strong>طول نوار تیره (A)</strong><br>
+                                    ۲. <strong>طول خودِ رشته‌های اکتین و میوزین</strong> (رشته‌ها کوتاه نمی‌شوند، بلکه روی هم سر می‌خورند!).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard 3: Nephron -->
+                    <div onclick="this.classList.toggle('flipped')" class="perspective-1000 h-52 cursor-pointer">
+                        <div class="flip-inner">
+                            <div class="flip-front bg-slate-950 border-2 border-sky-500/40 p-5 flex flex-col justify-between">
+                                <span class="text-xs text-sky-400 font-bold">دام کنکوری ۳: کلیه و نفرون</span>
+                                <p class="text-sm sm:text-base font-bold text-white text-center my-auto">
+                                    تفاوت رگ‌های گلومرول (کلافک) با سایر مویرگ‌های بدن چیست؟
+                                </p>
+                                <span class="text-[11px] text-slate-400 text-center">کلیک برای مشاهده پاسخ</span>
+                            </div>
+                            <div class="flip-back bg-emerald-950/90 border-2 border-emerald-400 p-5 flex flex-col justify-center text-center">
+                                <h4 class="font-bold text-emerald-300 text-sm mb-2">پاسخ دقیق:</h4>
+                                <p class="text-xs sm:text-sm text-white leading-relaxed">
+                                    در کل بدن مویرگ بین سرخرگ و سیاهرگ است؛ اما گلومرول <strong>بین دو سرخرگ (سرخرگ آوران و سرخرگ وابران)</strong> قرار دارد و فقط در آن <strong>تراوش</strong> رخ می‌دهد!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive 4-Question Konkur Simulation Quiz -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-white">آزمون سریع تثبیت شناختی (۴ تست ترکیبی کنکور)</h3>
+                    <div class="px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm">
+                        امتیاز: <strong id="bio-quiz-score" class="text-emerald-400 text-lg">0</strong> / 4
+                    </div>
+                </div>
+                <div id="bio-quiz-container" class="space-y-4"></div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // 1. Main Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.add('bg-rose-600', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-300');
+        }
+
+        // =========================================================
+        // MODULE 1 LOGIC: ECG & CARDIAC CYCLE STATES
+        // =========================================================
+        const ecgStates = {
+            'P': {
+                time: 'مدت فاز: ۰.۱ ثانیه (انقباض دهلیزها)',
+                color: '#38bdf8',
+                avValve: 'باز (عبور خون به بطن)',
+                avColor: 'text-emerald-400',
+                slValve: 'بسته',
+                slColor: 'text-rose-400',
+                atriaFill: 'rgba(56, 189, 248, 0.45)',
+                ventFill: 'rgba(30, 41, 59, 0.7)',
+                elec: 'پیام الکتریکی از <strong>گره سینوسی-دهلیزی (SA)</strong> آغاز شده و در دهلیزها پخش می‌شود (ثبت <strong>موج P</strong>). دهلیزها منقبض شده و ۲۰٪ باقی‌مانده خون را وارد بطن‌ها می‌کنند.',
+                valve: 'دریچه‌های دولختی و سه‌لختی <strong>باز</strong> و دریچه‌های سینی <strong>بسته</strong> هستند. هیچ صدای قلبی شنیده نمی‌شود.',
+                konkur: 'در قله موج P، پیام به گره دهلیزی-بطنی (AV) می‌رسد اما به دلیل تأخیر گره AV، بطن‌ها هنوز منقبض نشده‌اند.'
+            },
+            'QRS': {
+                time: 'شروع سیستول بطن (۰.۳ ثانیه)',
+                color: '#f43f5e',
+                avValve: 'بسته می‌شود (صدای اول: پوم!)',
+                avColor: 'text-rose-400',
+                slValve: 'در آستانه باز شدن',
+                slColor: 'text-amber-400',
+                atriaFill: 'rgba(30, 41, 59, 0.7)',
+                ventFill: 'rgba(244, 63, 94, 0.45)',
+                elec: 'پیام الکتریکی از دسته‌های تار و شبکه پورکنژ در دیواره بطن‌ها منتشر می‌شود (ثبت <strong>مجموعه QRS</strong>) و هم‌زمان دهلیزها به استراحت می‌روند.',
+                valve: 'با شروع انقباض بطن‌ها، فشار بطن بالا رفته و دریچه‌های دولختی و سه‌لختی محکم بسته می‌شوند که <strong>صدای اول قلب (طولانی و بم)</strong> را ایجاد می‌کند.',
+                konkur: 'بسته شدن دریچه‌های دهلیزی-بطنی (صدای اول) بلافاصله پس از موج QRS و در ابتدای سیستول بطن رخ می‌دهد.'
+            },
+            'ST': {
+                time: 'ادامه سیستول بطن (تخلیه خون)',
+                color: '#f59e0b',
+                avValve: 'بسته',
+                avColor: 'text-rose-400',
+                slValve: 'باز (فوران خون به سرخرگ‌ها)',
+                slColor: 'text-emerald-400',
+                atriaFill: 'rgba(30, 41, 59, 0.7)',
+                ventFill: 'rgba(245, 158, 11, 0.4)',
+                elec: 'تمام یاخته‌های ماهیچه‌ای بطن در حالت انقباض کامل هستند (<strong>قطعه ST</strong>) و خون با فشار زیاد (حجم ضربه‌ای) وارد آئورت و سرخرگ ششی می‌شود.',
+                valve: 'فشار بطن از سرخرگ‌ها پیشی گرفته و <strong>دریچه‌های سینی باز می‌شوند</strong> (باز شدن دریچه‌ها صدایی تولید نمی‌کند!).',
+                konkur: 'در فاصله بین پایان موج S تا شروع موج T، دریچه‌های سینی باز هستند و بطن‌ها در حال پمپاژ خون می‌باشند.'
+            },
+            'T': {
+                time: 'پایان سیستول بطن و شروع دیاستول',
+                color: '#10b981',
+                avValve: 'در حال باز شدن',
+                avColor: 'text-amber-400',
+                slValve: 'بسته می‌شود (صدای دوم: تاک!)',
+                slColor: 'text-rose-400',
+                atriaFill: 'rgba(30, 41, 59, 0.7)',
+                ventFill: 'rgba(16, 185, 129, 0.35)',
+                elec: 'بازگشت بطن‌ها از حالت انقباض به حالت استراحت، <strong>موج T</strong> را در نوار قلب ثبت می‌کند.',
+                valve: 'با شل شدن بطن‌ها، خونِ درون سرخرگ‌ها به عقب برمی‌گردد و دریچه‌های سینی را می‌بندد که <strong>صدای دوم قلب (کوتاه و واضح)</strong> را ایجاد می‌کند.',
+                konkur: 'موج T کمی قبل از پایان کامل انقباض بطن‌ها ثبت می‌شود و بلافاصله پس از آن صدای دوم قلب شنیده می‌شود.'
+            },
+            'REST': {
+                time: 'مدت فاز: ۰.۴ ثانیه (استراحت عمومی)',
+                color: '#a855f7',
+                avValve: 'باز (پر شدن ۸۰٪ بطن‌ها)',
+                avColor: 'text-emerald-400',
+                slValve: 'بسته',
+                slColor: 'text-rose-400',
+                atriaFill: 'rgba(168, 85, 247, 0.25)',
+                ventFill: 'rgba(168, 85, 247, 0.25)',
+                elec: 'هم دهلیزها و هم بطن‌ها در حال استراحت‌اند (خط افقی بعد از T تا P بعدی). خون از سیاهرگ‌ها وارد دهلیزها و بطن‌ها می‌شود.',
+                valve: 'به دلیل وزن خون، دریچه‌های دولختی و سه‌لختی <strong>خودبه‌خود باز هستند</strong> و حدود ۸۰٪ حجم بطن‌ها بدون انقباض دهلیز پر می‌شود!',
+                konkur: 'در دوره استراحت عمومی (۰.۴ ثانیه)، هیچ فعالیت الکتریکی در نوار قلب ثبت نمی‌شود اما بطن‌ها در حال پر شدنِ غیرفعال هستند.'
+            }
+        };
+
+        function setEcgState(stateKey) {
+            const st = ecgStates[stateKey];
+            document.getElementById('ecg-time-badge').innerText = st.time;
+            document.getElementById('valve-av-status').innerText = st.avValve;
+            document.getElementById('valve-av-status').className = `${st.avColor} text-sm font-bold`;
+            document.getElementById('valve-sl-status').innerText = st.slValve;
+            document.getElementById('valve-sl-status').className = `${st.slColor} text-sm font-bold`;
+
+            document.getElementById('heart-atria').setAttribute('fill', st.atriaFill);
+            document.getElementById('heart-ventricles').setAttribute('fill', st.ventFill);
+
+            document.getElementById('ecg-desc-elec').innerHTML = st.elec;
+            document.getElementById('ecg-desc-valve').innerHTML = st.valve;
+            document.getElementById('ecg-desc-konkur').innerHTML = st.konkur;
+
+            // Highlight active SVG wave
+            ['P', 'QRS', 'ST', 'T', 'REST'].forEach(k => {
+                const waveEl = document.getElementById(`svg-wave-${k}`);
+                const btnEl = document.getElementById(`ecg-btn-${k}`);
+                if (k === stateKey) {
+                    waveEl.setAttribute('stroke', ecgStates[k].color);
+                    waveEl.setAttribute('stroke-width', '8');
+                    btnEl.className = 'ecg-btn p-3 rounded-2xl border-2 border-sky-400 bg-sky-950/40 text-right transition';
+                } else {
+                    waveEl.setAttribute('stroke', '#475569');
+                    waveEl.setAttribute('stroke-width', '5');
+                    btnEl.className = 'ecg-btn p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 text-right transition';
+                }
+            });
+        }
+
+        // =========================================================
+        // MODULE 2 LOGIC: SARCOMERE SLIDING FILAMENT
+        // =========================================================
+        function updateSarcomere(val) {
+            document.getElementById('sarcomere-slider').value = val;
+            document.getElementById('sarcomere-percent').innerText = `${val}%`;
+
+            // Max inward shift of each actin group is 42px
+            const shift = (val / 100) * 42;
+            document.getElementById('svg-left-actin').setAttribute('transform', `translate(${shift}, 0)`);
+            document.getElementById('svg-right-actin').setAttribute('transform', `translate(${-shift}, 0)`);
+
+            // Update H-zone width (starts at 100px, shrinks by 2*shift)
+            const newHWidth = Math.max(16, 100 - (2 * shift));
+            const newHX = 300 - (newHWidth / 2);
+            document.getElementById('svg-h-zone').setAttribute('x', newHX);
+            document.getElementById('svg-h-zone').setAttribute('width', newHWidth);
+        }
+
+        // =========================================================
+        // MODULE 3 LOGIC: NEPHRON SEGMENTS & PROCESSES
+        // =========================================================
+        const nephronData = {
+            'bowman': {
+                badge: 'بخش ۱: کپسول بومن و گلومرول',
+                title: 'کپسول بومن (محل انحصاری تراوش)',
+                desc: 'خون با فشار بالا از سرخرگ آوران وارد شبکه مویرگی گلومرول می‌شود. تمام مواد ریز پلاسما (آب، یون‌ها، گلوکز، آمینواسیدها و اوره) به داخل کپسول بومن تراوش می‌شوند.',
+                extra: 'گلبول‌های قرمز و پروتئین‌های درشت (مثل آلبومین) به دلیل اندازه بزرگ از منافذ عبور نمی‌کنند. تراوش کاملاً غیرفعال (بدون مصرف ATP) است.'
+            },
+            'pct': {
+                badge: 'بخش ۲: لوله پیچ‌خورده نزدیک (PCT)',
+                title: 'قهرمان بازجذب در نفرون!',
+                desc: 'بیشترین میزان بازجذب مواد مفید در این لوله انجام می‌شود (به دلیل داشتن یاخته‌های مکعبی با ریزپرزهای فراوان). ۱۰۰٪ گلوکز و آمینواسیدها در شرایط عادی اینجا بازجذب می‌شوند.',
+                extra: 'بازجذب گلوکز و آمینواسیدها فعال (با مصرف ATP) و بازجذب آب به روش اسمز است. همچنین ترشح برخی داروها و یون هیدروژن نیز در اینجا رخ می‌دهد.'
+            },
+            'henle': {
+                badge: 'بخش ۳: قوس هنله',
+                title: 'تنظیم غلظت و بازجذب آب و نمک',
+                desc: 'قوس هنله در بخش مرکزی کلیه فرو رفته است. در بخش پایین‌رو عمدتاً بازجذب آب (اسمز) و در بخش بالارو بازجذب یون‌های سدیم و کلر انجام می‌شود.',
+                extra: 'در اطراف قوس هنله، شبکه مویرگی ویژه‌ای وجود دارد که مواد بازجذب‌شده را به گردش خون بازمی‌گرداند.'
+            },
+            'dct': {
+                badge: 'بخش ۴: لوله پیچ‌خورده دور (DCT)',
+                title: 'تنظیم دقیق pH خون و یون‌ها (ترشح و بازجذب)',
+                desc: 'در این بخش، ترشح فعال یون‌های هیدروژن ($H^+$) و پتاسیم ($K^+$) و برخی داروها (مثل پنی‌سیلین) از خون به درون نفرون انجام می‌شود تا pH خون تنظیم گردد.',
+                extra: 'هورمون آلدوسترون (از قشر فوق‌کلیه) با اثر بر نفرون، بازجذب سدیم و به دنبال آن بازجذب آب را افزایش می‌دهد.'
+            },
+            'cd': {
+                badge: 'بخش ۵: مجرای جمع‌کننده ادرار',
+                title: 'تغلیظ نهایی ادرار (تحت اثر هورمون ضدادراری ADH)',
+                desc: 'توجه کنکوری: مجرای جمع‌کننده جزئی از خودِ نفرون محسوب نمی‌شود! اما ادامه لوله پیچ‌خورده دور است و بازجذب نهایی آب و مقداری اوره در آن صورت می‌گیرد.',
+                extra: 'در بخش آخر مجرای جمع‌کننده، هیچ‌گونه ترشحی رخ نمی‌دهد و ادرار نهایی وارد لگنچه کلیه می‌شود.'
+            }
+        };
+
+        function selectNephronSegment(segKey) {
+            const info = nephronData[segKey];
+            document.getElementById('nep-badge').innerText = info.badge;
+            document.getElementById('nep-title').innerText = info.title;
+            document.getElementById('nep-desc').innerHTML = info.desc;
+            document.getElementById('nep-extra').innerHTML = info.extra;
+        }
+
+        function setNephronProcess(proc) {
+            const fEl = document.getElementById('arrow-filtration');
+            const rEl = document.getElementById('arrow-reabsorption');
+            const sEl = document.getElementById('arrow-secretion');
+
+            fEl.style.opacity = (proc === 'all' || proc === 'filtration') ? '1' : '0.15';
+            rEl.style.opacity = (proc === 'all' || proc === 'reabsorption') ? '1' : '0.15';
+            sEl.style.opacity = (proc === 'all' || proc === 'secretion') ? '1' : '0.15';
+        }
+
+        // =========================================================
+        // MODULE 4 LOGIC: KONKUR COMBINED QUIZ
+        // =========================================================
+        const bioQuestions = [
+            {
+                q: "۱. در یک فرد سالم، هم‌زمان با ثبت موج QRS در نوار قلب، کدام رویداد در قلب در حال وقوع است؟",
+                options: [
+                    "انقباض دهلیزها و باز شدن دریچه‌های سینی",
+                    "بازگشت دهلیزها به حالت استراحت و شروع انقباض بطن‌ها",
+                    "شنیده شدن صدای دوم قلب به علت بسته شدن دریچه‌های سینی",
+                    "استراحت عمومی قلب به مدت ۰.۴ ثانیه"
+                ],
+                correct: 1,
+                exp: "هم‌زمان با موج QRS، پیام الکتریکی در بطن‌ها پخش شده (شروع انقباض بطن) و دهلیزها به حالت استراحت بازمی‌گردند."
+            },
+            {
+                q: "۲. در جریان انقباض یک سارکومر در ماهیچه دوسر بازو، کدام مورد صحیح است؟",
+                options: [
+                    "طول نوار A و نوار I هر دو کاهش می‌یابد.",
+                    "برای جدا شدن سر میوزین از رشته اکتین، اتصال مولکول ATP به سر میوزین ضروری است.",
+                    "طول رشته‌های نازک اکتین کوتاه‌تر می‌شود.",
+                    "صفحه هنسن (H) عریض‌تر می‌شود."
+                ],
+                correct: 1,
+                exp: "اتصال ATP جدید به سر میوزین باعث جدا شدن سر میوزین از اکتین می‌شود؛ همچنین طول نوار A و طول خودِ رشته‌های اکتین و میوزین هرگز تغییر نمی‌کند."
+            },
+            {
+                q: "۳. کدام عبارت درباره فرآیندهای تشکیل ادرار در کلیه انسان کاملاً درست است؟",
+                options: [
+                    "تراوش در کپسول بومن با مصرف انرژی (ATP) همراه است.",
+                    "ترشح مواد از مویرگ‌های دورلوله‌ای به نفرون، همواره با صرف انرژی (فعال) انجام می‌شود.",
+                    "بیشترین بازجذب گلوکز و آمینواسیدها در قوس هنله رخ می‌دهد.",
+                    "قطر سرخرگ وابران بیشتر از سرخرگ آوران است."
+                ],
+                correct: 1,
+                exp: "فرآیند ترشح (برخلاف تراوش که کاملاً غیرفعال است) همیشه به صورت انتقال فعال و با مصرف ATP انجام می‌شود."
+            },
+            {
+                q: "۴. صدای اول قلب (پوم) و صدای دوم قلب (تاک) به ترتیب در نتیجه بسته شدن کدام دریچه‌ها ایجاد می‌شوند؟",
+                options: [
+                    "دریچه‌های سینی — دریچه‌های دولختی و سه‌لختی",
+                    "دریچه‌های دهلیزی-بطنی (دولختی و سه‌لختی) — دریچه‌های سینی",
+                    "دریچه دولختی — دریچه سه‌لختی",
+                    "باز شدن دریچه‌های سینی — بسته شدن دریچه‌های سینی"
+                ],
+                correct: 1,
+                exp: "صدای اول در شروع سیستول بطن با بسته شدن دریچه‌های دهلیزی-بطنی و صدای دوم در پایان سیستول بطن با بسته شدن دریچه‌های سینی ایجاد می‌شود."
+            }
+        ];
+
+        let bioScore = 0;
+        let bioAnswered = {};
+
+        function renderBioQuiz() {
+            const container = document.getElementById('bio-quiz-container');
+            container.innerHTML = '';
+
+            bioQuestions.forEach((item, qIdx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3';
+
+                const title = document.createElement('div');
+                title.className = 'font-bold text-white text-sm sm:text-base';
+                title.innerText = item.q;
+                card.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2.5';
+
+                item.options.forEach((opt, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.id = `bq-${qIdx}-opt-${optIdx}`;
+                    btn.className = 'text-right p-3 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm text-slate-300 transition';
+                    btn.innerText = opt;
+                    btn.onclick = () => checkBioAnswer(qIdx, optIdx);
+                    grid.appendChild(btn);
+                });
+
+                const exp = document.createElement('div');
+                exp.id = `bq-exp-${qIdx}`;
+                exp.className = 'hidden text-xs p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-300';
+
+                card.appendChild(grid);
+                card.appendChild(exp);
+                container.appendChild(card);
+            });
+        }
+
+        function checkBioAnswer(qIdx, optIdx) {
+            if (bioAnswered[qIdx]) return;
+            bioAnswered[qIdx] = true;
+
+            const item = bioQuestions[qIdx];
+            const selectedBtn = document.getElementById(`bq-${qIdx}-opt-${optIdx}`);
+            const correctBtn = document.getElementById(`bq-${qIdx}-opt-${item.correct}`);
+            const exp = document.getElementById(`bq-exp-${qIdx}`);
+
+            if (optIdx === item.correct) {
+                bioScore++;
+                document.getElementById('bio-quiz-score').innerText = bioScore;
+                selectedBtn.className = 'text-right p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/50 text-xs sm:text-sm text-emerald-300 font-bold';
+                exp.innerHTML = `<strong class="text-emerald-400">✅ آفرین! </strong> ${item.exp}`;
+            } else {
+                selectedBtn.className = 'text-right p-3 rounded-xl border-2 border-rose-500 bg-rose-950/50 text-xs sm:text-sm text-rose-300';
+                correctBtn.className = 'text-right p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/50 text-xs sm:text-sm text-emerald-300 font-bold';
+                exp.innerHTML = `<strong class="text-rose-400">❌ نکته کنکوری: </strong> ${item.exp}`;
+            }
+            exp.classList.remove('hidden');
+        }
+
+        window.onload = function() {
+            setEcgState('P');
+            renderBioQuiz();
+        };
+    </script>
+</body>
+</html>

@@ -3,12 +3,39 @@
     <title>Magic prompts for Students</title>
     <link href="https://miladkasi.github.io/magic_prompts/feed.xml" rel="self" />
     <link href="https://miladkasi.github.io/magic_prompts" />
-    <updated>2026-10-21T14:29:39+03:30</updated>
+    <updated>2026-10-21T15:25:20+03:30</updated>
     <author>
         <name>Milad Kasirlou</name>
     </author>
     <id>https://miladkasi.github.io/magic_prompts</id>
 
+    <entry>
+        <title>ابزار تعاملی بیولوژی</title>
+        <author>
+            <name>Milad Kasirlou</name>
+        </author>
+        <link href="https://miladkasi.github.io/magic_prompts/bzr-taamly-bywlwjy.html"/>
+        <id>https://miladkasi.github.io/magic_prompts/bzr-taamly-bywlwjy.html</id>
+
+        <updated>2026-10-21T15:25:20+03:30</updated>
+            <summary type="html">
+                <![CDATA[
+                    🚀 باز کردن آزمایشگاه در صفحه کامل (مناسب موبایل)
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                <div><div style="width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.12); margin: 20px 0;">
+  <div class="post__iframe"><iframe loading="lazy" src="https://kasirloumilad.github.io/Magic-prompts/biology_interactive.html" width="100%" height="750px" style="border: none;"></iframe></div>
+</div>
+<p style="text-align: center; margin-top: 15px;">
+  <a href="https://kasirloumilad.github.io/Magic-prompts/biology_interactive.html" target="_blank" style="display: inline-block; padding: 12px 24px; background: #4f46e5; color: #ffffff; border-radius: 10px; text-decoration: none; font-weight: bold;">
+    🚀 باز کردن آزمایشگاه در صفحه کامل (مناسب موبایل)
+  </a>
+</p></div>
+            ]]>
+        </content>
+    </entry>
     <entry>
         <title>یاعلی گفتیم </title>
         <author>
